@@ -6,8 +6,10 @@
 import { def } from '../util/index'
 
 const arrayProto = Array.prototype
+// day1 下面还有对这个对象做操作
 export const arrayMethods = Object.create(arrayProto)
 
+// day1 所有能监听到变化的 api
 const methodsToPatch = [
   'push',
   'pop',
@@ -34,9 +36,15 @@ methodsToPatch.forEach(function (method) {
         inserted = args
         break
       case 'splice':
+        /**
+         * day1 slice 的第三个参数是要插入的元素，如果为 truly 则可以理解本次操作插入了新的元素
+         * 可是如果插入的是 "" 0 false 呢？不会有 bug 么
+         */
+        debugger;
         inserted = args.slice(2)
         break
     }
+    debugger;
     if (inserted) ob.observeArray(inserted)
     // notify change
     ob.dep.notify()

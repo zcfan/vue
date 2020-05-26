@@ -1,5 +1,9 @@
 /* @flow */
 
+/**
+ * day1 今天看不完了，明天继续
+ */
+
 import {
   warn,
   remove,

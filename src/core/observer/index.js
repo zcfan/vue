@@ -46,12 +46,18 @@ export class Observer {
     def(value, '__ob__', this)
     if (Array.isArray(value)) {
       if (hasProto) {
+        /**
+         * day1 arrayMethods 里是包装过的 array api ，可以配合 value.__ob__ 实现 array 内容变化的监听
+         */
         protoAugment(value, arrayMethods)
       } else {
         copyAugment(value, arrayMethods, arrayKeys)
       }
       this.observeArray(value)
     } else {
+      /**
+       * day1 遍历整个 object 把所有 properties 都修改为 getter setter
+       */
       this.walk(value)
     }
   }
@@ -86,6 +92,7 @@ export class Observer {
  */
 function protoAugment (target, src: Object) {
   /* eslint-disable no-proto */
+  // day1 直接修改 __proto__ 对象以
   target.__proto__ = src
   /* eslint-enable no-proto */
 }
@@ -112,6 +119,8 @@ export function observe (value: any, asRootData: ?boolean): Observer | void {
     return
   }
   let ob: Observer | void
+  // day1 所以如果父组件把 data 作为 props 传入子组件，子组件再把 props 赋值给 data ，这个 data 不会被重新处理，而是保留
+  // 在父组件中初始化的 Observer
   if (hasOwn(value, '__ob__') && value.__ob__ instanceof Observer) {
     ob = value.__ob__
   } else if (
@@ -121,6 +130,7 @@ export function observe (value: any, asRootData: ?boolean): Observer | void {
     Object.isExtensible(value) &&
     !value._isVue
   ) {
+    // day1 这里这里
     ob = new Observer(value)
   }
   if (asRootData && ob) {
@@ -146,6 +156,7 @@ export function defineReactive (
     return
   }
 
+  // day1 保留下原来的 getter setter ，再加自己的
   // cater for pre-defined getter/setters
   const getter = property && property.get
   const setter = property && property.set
@@ -158,7 +169,9 @@ export function defineReactive (
     enumerable: true,
     configurable: true,
     get: function reactiveGetter () {
+      // day1 拿到该返回的结果，调用原本的 getter 或没有 getter 就直接是 value
       const value = getter ? getter.call(obj) : val
+      // Dep 维护了一个全局的
       if (Dep.target) {
         dep.depend()
         if (childOb) {
@@ -173,6 +186,7 @@ export function defineReactive (
     set: function reactiveSetter (newVal) {
       const value = getter ? getter.call(obj) : val
       /* eslint-disable no-self-compare */
+      // day1 NaN 自己和自己都不相等，所以 value 为 NaN 时要判断 newVal 与它是否相等要用这里的方式
       if (newVal === value || (newVal !== newVal && value !== value)) {
         return
       }

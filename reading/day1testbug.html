@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reading Vue</title>
+    <script src="../dist/vue.js"></script>
+  </head>
+  <body>
+    <div id="demo1">
+      {{ sample }}
+      <button @click="changeData">tap me to change data</button>
+    </div>
+
+    <script>
+      // #1 跟踪断点
+      debugger;
+      new Vue({
+        el: "#demo1",
+        data: {
+          sample: [1],
+        },
+        methods: {
+          changeData() {
+            // 使用 splice 在 0 处插入一个数字 0
+            // 期望：变化得到响应
+            // 实际：
+            this.sample.splice(0, 0, 0);
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

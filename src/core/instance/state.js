@@ -35,7 +35,10 @@ const sharedPropertyDefinition = {
   set: noop
 }
 
+// day1 proxy 是把 target[sourceKey][key] 的内容 defineProperty 到 target[key] 上
+// day1 emmmmmmm。。。看起来只是个快捷方式，还要继续往后
 export function proxy (target: Object, sourceKey: string, key: string) {
+  // day1 重用同一个 PropertyDefinition 
   sharedPropertyDefinition.get = function proxyGetter () {
     return this[sourceKey][key]
   }
@@ -50,6 +53,7 @@ export function initState (vm: Component) {
   const opts = vm.$options
   if (opts.props) initProps(vm, opts.props)
   if (opts.methods) initMethods(vm, opts.methods)
+  // day1 今天的关键到了
   if (opts.data) {
     initData(vm)
   } else {
@@ -122,6 +126,7 @@ function initData (vm: Component) {
       vm
     )
   }
+  // day1 开始了
   // proxy data on instance
   const keys = Object.keys(data)
   const props = vm.$options.props
@@ -147,6 +152,7 @@ function initData (vm: Component) {
       proxy(vm, `_data`, key)
     }
   }
+  // day1 这里开始变换监听的逻辑了
   // observe data
   observe(data, true /* asRootData */)
 }
@@ -283,7 +289,12 @@ function initMethods (vm: Component, methods: Object) {
         )
       }
     }
-    vm[key] = typeof methods[key] !== 'function' ? noop : bind(methods[key], vm)
+    
+    vm[key] = typeof methods[key] !== 'function' ? 
+    // noop 是个什么都不做的函数，似乎只是为了应付 flow 的问题写的
+    noop : 
+    // 兼容不支持 bind api 的环境
+    bind(methods[key], vm);
   }
 }
 
